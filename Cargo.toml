@@ -1,0 +1,13 @@
+[package]
+name = "rechat2srt"
+version = "0.1.0"
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+anyhow = "1.0.42"
+argh = "0.1.4"
+chrono = "0.4.19"
+miniserde = "0.1.13"
+srtlib = "0.1.0"
