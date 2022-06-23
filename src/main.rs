@@ -13,6 +13,7 @@ struct Comment {
     commenter: Commenter,
     message: Message,
     updated_at: String,
+    content_offset_seconds: Option<f64>,
 }
 
 
@@ -35,9 +36,15 @@ struct Opts {
     #[argh(positional)]
     files: Vec<std::path::PathBuf>,
 
-    /// unix timestamp of the beginning of the video
+    /// unix timestamp of the beginning of the video.
+    /// If omitted, `updated_at` date of the first comment will be used as a base date.
+    /// 
     #[argh(option,short='b')]
-    basetime_unix: i64,
+    basetime_unix: Option<i64>,
+
+    /// use `content_offset_seconds` instead of `updated_at`, ignore `basetime_unix`.
+    #[argh(switch,short='O')]
+    use_content_offset_seconds: bool,
 
     /// duration of each chat message
     #[argh(option, default="3")]
@@ -46,6 +53,7 @@ struct Opts {
 
 fn main() -> anyhow::Result<()> {
     let opts : Opts = argh::from_env();
+    let mut basetime = opts.basetime_unix; 
 
 
     let mut num = 1;
@@ -58,7 +66,12 @@ fn main() -> anyhow::Result<()> {
             let d = chrono::DateTime::parse_from_rfc3339(&comment.updated_at[..])?;
             //println!("{} <{}> {}", d.timestamp() - opts.basetime_unix, comment.commenter.display_name, comment.message.body);
             let mut start_time = srtlib::Timestamp::new(0,0,0,0);
-            start_time.add_seconds((d.timestamp() - opts.basetime_unix) as i32);
+            if basetime.is_none() { basetime = Some(d.timestamp()) }
+            if opts.use_content_offset_seconds && comment.content_offset_seconds.is_some() {
+                start_time.add_seconds(comment.content_offset_seconds.unwrap() as i32)
+            } else {
+                start_time.add_seconds((d.timestamp() - basetime.unwrap()) as i32);
+            }
             let mut end_time = start_time.clone();
             end_time.add_seconds(opts.duration);
     

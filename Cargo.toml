@@ -1,6 +1,6 @@
 [package]
 name = "rechat2srt"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2018"
 authors = ["Vitaly \"_Vi\" Shukela <vi0oss@gmail.com>"]
 license = "MIT"
